@@ -1,0 +1,292 @@
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px;
+    background-color: #f0f2f5;
+    color: #333;
+}
+
+h1 {
+    text-align: center;
+    color: #4a4a9c;
+    margin-bottom: 30px;
+}
+
+.container {
+    background-color: white;
+    border-radius: 10px;
+    padding: 20px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+.upload-area {
+    border: 2px dashed #4a4a9c;
+    border-radius: 8px;
+    padding: 40px 20px;
+    text-align: center;
+    margin-bottom: 20px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.upload-area:hover {
+    background-color: #f8f9fa;
+}
+
+.upload-area.drag-over {
+    background-color: #e8eaf6;
+}
+
+#file-input {
+    display: none;
+}
+
+.controls {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 15px;
+    margin-bottom: 20px;
+}
+
+.control-group {
+    margin-bottom: 15px;
+}
+
+label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: 500;
+}
+
+input[type="range"], select {
+    width: 100%;
+}
+
+.value-display {
+    display: inline-block;
+    margin-left: 8px;
+    font-size: 0.9em;
+    color: #666;
+}
+
+button {
+    background-color: #4a4a9c;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    padding: 10px 15px;
+    font-size: 16px;
+    cursor: pointer;
+    margin-right: 10px;
+    transition: background-color 0.3s;
+}
+
+button:hover {
+    background-color: #3a3a7c;
+}
+
+button:disabled {
+    background-color: #9a9ab0;
+    cursor: not-allowed;
+}
+
+.buttons {
+    text-align: center;
+    margin-top: 20px;
+}
+
+.player-container {
+    margin-top: 30px;
+    border-top: 1px solid #ddd;
+    padding-top: 20px;
+}
+
+audio {
+    width: 100%;
+}
+
+.hidden {
+    display: none;
+}
+
+.status {
+    margin-top: 15px;
+    padding: 10px;
+    border-radius: 5px;
+    text-align: center;
+}
+
+.success {
+    background-color: #d4edda;
+    color: #155724;
+}
+
+.error {
+    background-color: #f8d7da;
+    color: #721c24;
+}
+
+.progress-container {
+    width: 100%;
+    height: 20px;
+    background-color: #e0e0e0;
+    border-radius: 10px;
+    margin-top: 15px;
+    overflow: hidden;
+}
+
+.progress-bar {
+    height: 100%;
+    background-color: #4a4a9c;
+    width: 0%;
+    transition: width 0.3s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 12px;
+}
+
+.preset-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.preset-button {
+    background-color: #6c63ff;
+    color: white;
+    border: none;
+    border-radius: 20px;
+    padding: 8px 16px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: all 0.3s;
+}
+
+.preset-button:hover {
+    background-color: #5a52d5;
+    transform: translateY(-2px);
+}
+
+.visualizer-container {
+    width: 100%;
+    height: 100px;
+    background-color: #111;
+    margin-top: 20px;
+    margin-bottom: 20px;
+    position: relative;
+    border-radius: 5px;
+    overflow: hidden;
+}
+
+canvas {
+    width: 100%;
+    height: 100%;
+}
+
+/* Estilos para área de doação */
+.donation-container {
+    margin-top: 40px;
+    border-top: 1px solid #ddd;
+    padding-top: 20px;
+    text-align: center;
+}
+
+.donation-container h3 {
+    color: #4a4a9c;
+    margin-bottom: 20px;
+}
+
+.donation-content {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 20px;
+}
+
+.qrcode-container {
+    max-width: 180px;
+}
+
+#qrcode-img {
+    width: 100%;
+    height: auto;
+    border-radius: 8px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+}
+
+.pix-info {
+    max-width: 450px;
+    text-align: left;
+}
+
+.pix-code {
+    display: flex;
+    margin: 10px 0 15px 0;
+}
+
+#pix-text {
+    flex: 1;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 5px 0 0 5px;
+    font-size: 12px;
+    background-color: #f8f9fa;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+#copy-pix-button {
+    padding: 10px 15px;
+    background-color: #6c63ff;
+    color: white;
+    border: none;
+    border-radius: 0 5px 5px 0;
+    cursor: pointer;
+}
+
+#copy-pix-button:hover {
+    background-color: #5a52d5;
+}
+
+.dev-info {
+    font-size: 14px;
+    color: #666;
+    margin-top: 15px;
+}
+
+.developer-info {
+    text-align: center;
+    margin-bottom: 15px;
+    font-size: 14px;
+    color: #666;
+}
+
+.developer-info a {
+    color: #4a4a9c;
+    text-decoration: none;
+    font-weight: bold;
+}
+
+.developer-info a:hover {
+    text-decoration: underline;
+}
+
+/* Media queries para responsividade */
+@media (max-width: 600px) {
+    .controls {
+        grid-template-columns: 1fr;
+    }
+    
+    .preset-buttons {
+        flex-wrap: wrap;
+    }
+    
+    .donation-content {
+        flex-direction: column;
+    }
+}

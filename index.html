@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Conversor de Música 8D</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Conversor de Música 8D</h1>
+        
+        <div class="developer-info">
+            <p>Desenvolvido por <a href="https://www.linkedin.com/in/robseng/" target="_blank">robd3v</a></p>
+        </div>
+        
+        <div class="upload-area" id="drop-area">
+            <p>Arraste e solte um arquivo de áudio aqui ou clique para selecionar</p>
+            <input type="file" id="file-input" accept="audio/*" />
+        </div>
+
+        <div class="preset-buttons">
+            <button class="preset-button" data-preset="suave">Suave</button>
+            <button class="preset-button" data-preset="intenso">Intenso</button>
+            <button class="preset-button" data-preset="psicodelico">Psicodélico</button>
+            <button class="preset-button" data-preset="aleatorio">Aleatório</button>
+        </div>
+        
+        <div class="controls">
+            <div class="control-group">
+                <label for="pan-speed">Velocidade de Panorâmica <span id="pan-speed-value" class="value-display">2.0 Hz</span></label>
+                <input type="range" id="pan-speed" min="0.1" max="5" step="0.1" value="2.0">
+            </div>
+
+            <div class="control-group">
+                <label for="pan-amount">Intensidade de Panorâmica <span id="pan-amount-value" class="value-display">1.0</span></label>
+                <input type="range" id="pan-amount" min="0.1" max="1" step="0.05" value="1.0">
+            </div>
+            
+            <div class="control-group">
+                <label for="reverb-amount">Intensidade de Reverberação <span id="reverb-amount-value" class="value-display">0.3</span></label>
+                <input type="range" id="reverb-amount" min="0" max="0.9" step="0.05" value="0.3">
+            </div>
+            
+            <div class="control-group">
+                <label for="room-size">Tamanho do Ambiente <span id="room-size-value" class="value-display">0.8</span></label>
+                <input type="range" id="room-size" min="0.1" max="0.99" step="0.05" value="0.8">
+            </div>
+            
+            <div class="control-group">
+                <label for="echo-delay">Tempo de Delay <span id="echo-delay-value" class="value-display">0.2 s</span></label>
+                <input type="range" id="echo-delay" min="0.1" max="1" step="0.05" value="0.2">
+            </div>
+            
+            <div class="control-group">
+                <label for="echo-feedback">Feedback do Delay <span id="echo-feedback-value" class="value-display">0.2</span></label>
+                <input type="range" id="echo-feedback" min="0" max="0.7" step="0.05" value="0.2">
+            </div>
+            
+            <div class="control-group">
+                <label for="pan-pattern">Padrão de Movimento</label>
+                <select id="pan-pattern">
+                    <option value="sine">Senoidal (Suave)</option>
+                    <option value="triangle">Triangular</option>
+                    <option value="square">Quadrado (Abrupto)</option>
+                    <option value="random">Aleatório</option>
+                </select>
+            </div>
+            
+            <div class="control-group">
+                <label for="bass-boost">Reforço de Graves <span id="bass-boost-value" class="value-display">2 dB</span></label>
+                <input type="range" id="bass-boost" min="0" max="15" step="1" value="2">
+            </div>
+        </div>
+        
+        <div class="buttons">
+            <button id="process-button" disabled>Processar</button>
+            <button id="download-button" disabled>Download</button>
+            <button id="reset-button">Limpar</button>
+        </div>
+        
+        <div id="status-message" class="status hidden"></div>
+        
+        <div id="progress-container" class="progress-container hidden">
+            <div id="progress-bar" class="progress-bar">0%</div>
+        </div>
+        
+        <div id="visualizer-container" class="visualizer-container hidden">
+            <canvas id="visualizer"></canvas>
+        </div>
+        
+        <div id="player-container" class="player-container hidden">
+            <h3>Prévia:</h3>
+            <audio id="audio-player" controls></audio>
+        </div>
+        
+        <div class="donation-container">
+            <h3>Gostou do conversor? Faça uma doação!</h3>
+            <div class="donation-content">
+                <div class="qrcode-container">
+                    <img src="qrCode.jpg" alt="QR Code PIX" id="qrcode-img">
+                </div>
+                <div class="pix-info">
+                    <p>PIX Copia e Cola:</p>
+                    <div class="pix-code">
+                        <input type="text" id="pix-text" value="0020126360014BR.GOV.BCB.PIX0114+5562920005056520400005303986540510.005802BR5925Robson Pereira da Costa J6009SAO PAULO62140510ktr10bIeyP63046E56" readonly>
+                        <button id="copy-pix-button">Copiar</button>
+                    </div>
+                    <p class="dev-info">Desenvolvido por <a href="https://www.linkedin.com/in/robseng/" target="_blank">robd3v</a></p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.8.30/Tone.js"></script>
+    <script src="audio-processor.js"></script>
+    <script src="visualizer.js"></script>
+    <script src="presets.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>
