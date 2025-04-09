@@ -229,14 +229,19 @@ class AudioProcessor {
                 this.processingStarted = true;
                 this.isPaused = false;
                 
+                console.log("Processamento iniciado, isPaused:", this.isPaused);
+                
                 // Setup ended callback
                 this.sourceNode.onended = () => {
-                    this.processingStarted = false;
-                    this.offsetTime = 0;
-                    this.startTime = 0;
+                    if (!this.isPaused) {
+                        this.processingStarted = false;
+                        this.offsetTime = 0;
+                        this.startTime = 0;
+                    }
                     resolve(this.audioBuffer);
                 };
             } catch (error) {
+                console.error("Erro no processamento:", error);
                 reject(error);
             }
         });
@@ -249,9 +254,11 @@ class AudioProcessor {
      */
     pause() {
         if (this.processingStarted && !this.isPaused && this.audioContext) {
+            console.log("Pausando áudio");
             this.audioContext.suspend();
             this.offsetTime += this.audioContext.currentTime - this.startTime;
             this.isPaused = true;
+            console.log("Áudio pausado, isPaused:", this.isPaused);
         }
     }
 
@@ -260,9 +267,11 @@ class AudioProcessor {
      */
     resume() {
         if (this.processingStarted && this.isPaused && this.audioContext) {
+            console.log("Retomando áudio");
             this.audioContext.resume();
             this.startTime = this.audioContext.currentTime;
             this.isPaused = false;
+            console.log("Áudio retomado, isPaused:", this.isPaused);
         }
     }
 
@@ -289,89 +298,74 @@ class AudioProcessor {
     async exportAudio(options) {
         return new Promise(async (resolve, reject) => {
             try {
-                // Configuramos um novo contexto offline para renderizar o áudio
-                const offlineContext = new OfflineAudioContext(
-                    2,
-                    this.audioBuffer.length,
-                    this.audioBuffer.sampleRate
-                );
+                console.log("Iniciando exportação de áudio");
                 
-                // Criamos os nós básicos
-                const source = offlineContext.createBufferSource();
-                source.buffer = this.audioBuffer;
-                const panner = offlineContext.createStereoPanner();
-                
-                // Conectamos os nós
-                source.connect(panner);
-                panner.connect(offlineContext.destination);
-                
-                // Iniciamos a source
-                source.start();
-                
-                // Definimos o tamanho do bloco para processamento
-                const frameSize = 1024;
-                const totalFrames = this.audioBuffer.length;
-                
-                // Gerar valores aleatórios para o padrão random
-                if (options.panPattern === 'random') {
-                    this.randomPanValues = [];
-                    for (let i = 0; i < 100; i++) {
-                        this.randomPanValues.push(Math.random() * 2 - 1);
+                // Usamos um Web Worker simulado para não bloquear a UI
+                setTimeout(async () => {
+                    try {
+                        // Configuramos um novo contexto offline para renderizar o áudio
+                        const offlineContext = new OfflineAudioContext(
+                            2,
+                            this.audioBuffer.length,
+                            this.audioBuffer.sampleRate
+                        );
+                        
+                        // Criamos os nós básicos
+                        const source = offlineContext.createBufferSource();
+                        source.buffer = this.audioBuffer;
+                        const panner = offlineContext.createStereoPanner();
+                        
+                        // Conectamos os nós
+                        source.connect(panner);
+                        panner.connect(offlineContext.destination);
+                        
+                        // Iniciamos a source
+                        source.start();
+                        
+                        // Definimos o tamanho do bloco para processamento
+                        const frameSize = 1024;
+                        const totalFrames = this.audioBuffer.length;
+                        
+                        // Aplicamos o efeito 8D em blocos
+                        for (let i = 0; i < totalFrames; i += frameSize) {
+                            const phase = (i / totalFrames) % 1;
+                            let panValue = Math.sin(phase * Math.PI * 2) * options.panAmount;
+                            
+                            // Definimos o valor da panorâmica
+                            panner.pan.setValueAtTime(panValue, i / this.audioBuffer.sampleRate);
+                            
+                            // Atualizamos o progresso
+                            if (options.onProgress && i % (frameSize * 10) === 0) {
+                                options.onProgress(Math.min(i / totalFrames, 0.99));
+                            }
+                        }
+                        
+                        console.log("Renderizando áudio offline...");
+                        
+                        // Renderizamos o áudio
+                        const renderedBuffer = await offlineContext.startRendering();
+                        console.log("Renderização concluída");
+                        
+                        // Convertemos para WAV
+                        const wavData = this.audioBufferToWav(renderedBuffer);
+                        const blob = new Blob([wavData], { type: 'audio/wav' });
+                        console.log("Blob criado:", blob);
+                        
+                        // Finalizamos o progresso
+                        if (options.onProgress) {
+                            options.onProgress(1.0);
+                        }
+                        
+                        resolve(blob);
+                    } catch (innerError) {
+                        console.error("Erro na exportação (interior):", innerError);
+                        reject(innerError);
                     }
-                }
+                }, 500); // Pequeno atraso para permitir que a UI responda
                 
-                // Aplicamos a panorâmica em blocos para simular o efeito 8D
-                for (let i = 0; i < totalFrames; i += frameSize) {
-                    const phase = (i / totalFrames) % 1;
-                    let panValue;
-                    
-                    switch (options.panPattern) {
-                        case 'sine':
-                            panValue = Math.sin(phase * Math.PI * 2) * options.panAmount;
-                            break;
-                        case 'triangle':
-                            panValue = (Math.abs(((phase * 4) % 4) - 2) - 1) * options.panAmount;
-                            break;
-                        case 'square':
-                            panValue = (Math.floor(phase * 2) % 2 === 0 ? 1 : -1) * options.panAmount;
-                            break;
-                        case 'random':
-                            const randomIndex = Math.floor(Math.random() * this.randomPanValues.length);
-                            panValue = this.randomPanValues[randomIndex] * options.panAmount;
-                            break;
-                        default:
-                            panValue = Math.sin(phase * Math.PI * 2) * options.panAmount;
-                    }
-                    
-                    // Definimos o valor da panorâmica
-                    panner.pan.setValueAtTime(panValue, i / this.audioBuffer.sampleRate);
-                    
-                    // Atualizamos o progresso
-                    if (options.onProgress) {
-                        options.onProgress(Math.min(i / totalFrames, 0.99));
-                    }
-                }
-                
-                // Renderizamos o áudio
-                const renderedBuffer = await offlineContext.startRendering();
-                
-                // Aplicamos os efeitos extras não suportados pelo contexto offline
-                // Note: em uma implementação completa, seria necessário aplicar reverb e delay
-                
-                // Convertemos para WAV
-                const wavData = this.audioBufferToWav(renderedBuffer);
-                const blob = new Blob([wavData], { type: 'audio/wav' });
-                
-                // Finalizamos o progresso
-                if (options.onProgress) {
-                    options.onProgress(1.0);
-                }
-                
-                resolve(blob);
-                
-            } catch (error) {
-                console.error('Erro ao exportar áudio:', error);
-                reject(error);
+            } catch (outerError) {
+                console.error("Erro na exportação (exterior):", outerError);
+                reject(outerError);
             }
         });
     }

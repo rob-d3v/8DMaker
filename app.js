@@ -153,12 +153,17 @@ document.addEventListener('DOMContentLoaded', () => {
      * Alterna entre pausar e reproduzir o áudio
      */
     function togglePause() {
-        if (!audioProcessor.processingStarted) return;
+        if (!audioProcessor.processingStarted) {
+            // Se a reprodução não começou, não faça nada
+            return;
+        }
         
         if (audioProcessor.isPaused) {
+            // Se estiver pausado, retome a reprodução
             audioProcessor.resume();
             pauseButton.textContent = 'Pausar';
         } else {
+            // Se estiver reproduzindo, pause
             audioProcessor.pause();
             pauseButton.textContent = 'Continuar';
         }
@@ -185,6 +190,9 @@ document.addEventListener('DOMContentLoaded', () => {
             processButton.disabled = true;
             await audioProcessor.processAudio(settings);
             
+            // Habilitar botão de pausa
+            pauseButton.disabled = false;
+            
             // Conectar visualizador
             visualizer.connectAnalyser(audioProcessor.getAnalyser());
             visualizerContainer.classList.remove('hidden');
@@ -195,26 +203,36 @@ document.addEventListener('DOMContentLoaded', () => {
             audioPlayer.src = audioUrl;
             playerContainer.classList.remove('hidden');
             
-            // Processar e exportar áudio
-            processedAudioBlob = await audioProcessor.exportAudio({
-                ...settings,
-                onProgress: updateProgress
-            });
+            // Processar e exportar áudio separadamente (em background)
+            setTimeout(async () => {
+                try {
+                    // Exportar áudio processado
+                    progressContainer.classList.remove('hidden');
+                    const blob = await audioProcessor.exportAudio({
+                        ...settings,
+                        onProgress: updateProgress
+                    });
+                    
+                    // Definir explicitamente o blob processado
+                    processedAudioBlob = blob;
+                    
+                    // Habilitar o botão de download
+                    downloadButton.disabled = false;
+                    
+                    showStatusMessage('Áudio processado com sucesso! Download disponível.');
+                } catch (exportError) {
+                    console.error('Erro na exportação:', exportError);
+                    showStatusMessage('Erro ao exportar o áudio: ' + exportError.message, 'error');
+                } finally {
+                    progressContainer.classList.add('hidden');
+                }
+            }, 100);
             
-            // Atualizar player para áudio processado
-            const processedAudioUrl = URL.createObjectURL(processedAudioBlob);
-            audioPlayer.src = processedAudioUrl;
-            
-            // Atualizar estados dos botões
-            updateButtonStates();
-            
-            showStatusMessage('Áudio processado com sucesso!');
         } catch (error) {
             console.error('Erro ao processar o áudio:', error);
             showStatusMessage(`Erro ao processar o áudio: ${error.message}`, 'error');
-        } finally {
-            progressContainer.classList.add('hidden');
             processButton.disabled = false;
+            progressContainer.classList.add('hidden');
         }
     }
     
@@ -222,7 +240,12 @@ document.addEventListener('DOMContentLoaded', () => {
      * Baixa o áudio processado
      */
     function downloadProcessedAudio() {
-        if (!processedAudioBlob) return;
+        if (!processedAudioBlob) {
+            showStatusMessage('Nenhum áudio processado disponível para download', 'error');
+            return;
+        }
+        
+        console.log("Iniciando download de blob:", processedAudioBlob);
         
         const fileName = selectedFile.name.replace(/\.[^/.]+$/, '') + '_8D.wav';
         const url = URL.createObjectURL(processedAudioBlob);
