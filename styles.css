@@ -259,6 +259,19 @@ canvas {
     margin-top: 15px;
 }
 
+#pause-button {
+    background-color: #ff9800;
+}
+
+#pause-button:hover {
+    background-color: #e68a00;
+}
+
+#pause-button:disabled {
+    background-color: #ffc890;
+    cursor: not-allowed;
+}
+
 .developer-info {
     text-align: center;
     margin-bottom: 15px;

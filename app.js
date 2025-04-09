@@ -6,6 +6,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const dropArea = document.getElementById('drop-area');
     const fileInput = document.getElementById('file-input');
     const processButton = document.getElementById('process-button');
+    const pauseButton = document.getElementById('pause-button');
     const downloadButton = document.getElementById('download-button');
     const resetButton = document.getElementById('reset-button');
     const statusMessage = document.getElementById('status-message');
@@ -47,6 +48,7 @@ document.addEventListener('DOMContentLoaded', () => {
      */
     function updateButtonStates() {
         processButton.disabled = !selectedFile;
+        pauseButton.disabled = !selectedFile || !audioProcessor.processingStarted;
         downloadButton.disabled = !processedAudioBlob;
     }
     
@@ -148,6 +150,21 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     
     /**
+     * Alterna entre pausar e reproduzir o áudio
+     */
+    function togglePause() {
+        if (!audioProcessor.processingStarted) return;
+        
+        if (audioProcessor.isPaused) {
+            audioProcessor.resume();
+            pauseButton.textContent = 'Pausar';
+        } else {
+            audioProcessor.pause();
+            pauseButton.textContent = 'Continuar';
+        }
+    }
+    
+    /**
      * Processa o áudio com as configurações atuais
      */
     async function processAudio() {
@@ -178,8 +195,7 @@ document.addEventListener('DOMContentLoaded', () => {
             audioPlayer.src = audioUrl;
             playerContainer.classList.remove('hidden');
             
-            // Exportar áudio processado
-            progressContainer.classList.remove('hidden');
+            // Processar e exportar áudio
             processedAudioBlob = await audioProcessor.exportAudio({
                 ...settings,
                 onProgress: updateProgress
@@ -240,6 +256,7 @@ document.addEventListener('DOMContentLoaded', () => {
         playerContainer.classList.add('hidden');
         visualizerContainer.classList.add('hidden');
         audioPlayer.src = '';
+        pauseButton.textContent = 'Pausar';
         
         // Resetar controles para valores padrão
         applySettings(Presets.default);
@@ -293,6 +310,7 @@ document.addEventListener('DOMContentLoaded', () => {
     
     // Eventos para botões
     processButton.addEventListener('click', processAudio);
+    pauseButton.addEventListener('click', togglePause);
     downloadButton.addEventListener('click', downloadProcessedAudio);
     resetButton.addEventListener('click', resetApp);
     
